@@ -1,0 +1,36 @@
+import sqlite3
+
+
+class Database:
+    def __init__(self):
+        self.conn = sqlite3.connect("users.db")
+        self.cursor = self.conn.cursor()
+
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE,
+            password TEXT
+        )
+        """)
+
+        self.conn.commit()
+
+    def register(self, email, password):
+        try:
+            self.cursor.execute(
+                "INSERT INTO users(email,password) VALUES (?,?)",
+                (email, password)
+            )
+            self.conn.commit()
+            return True
+        except:
+            return False
+
+    def login(self, email, password):
+        self.cursor.execute(
+            "SELECT * FROM users WHERE email=? AND password=?",
+            (email, password)
+        )
+
+        return self.cursor.fetchone() is not None
